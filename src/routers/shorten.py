@@ -6,6 +6,11 @@ router = APIRouter(tags=["shorten"], prefix="/shorten")
 
 @router.post("/{url}", response_model=models.ShortenedURL)
 def CreateShortenedURL(
-    url: str,
+    url: str,   
 ):
-    print(url)
+    result = database.CreateShortenedURL(url)
+
+    if result is None:
+        return {"message": "Failed to create!"}
+    
+    return result

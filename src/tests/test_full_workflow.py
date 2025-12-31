@@ -11,6 +11,6 @@ from api import app
 
 client = TestClient(app)
 
-def test():
-    response = client.post("/", json={"url": "www.roblox.com"})
+def test_full_workflow():
+    response = client.post("/shorten/www.roblox.com")
     print(response)

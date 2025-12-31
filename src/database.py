@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
+from pymongo.errors import DuplicateKeyError
 import config
 from typing import Dict, List, Optional
 import models
@@ -23,17 +24,20 @@ def DoShortenedAttempt():
 
     return shortened
 
-def CreateShortenedURL(url : str):
-    attempt = ""
-
-    while True:
-        attempt = DoShortenedAttempt()
-
-        if not GetDb()["urls"].find({"short_url": attempt}):
-            break 
-    
+def CreateShortenedURL(url : str) -> models.ShortenedURL | None:
+    db = GetDb()
+    collection = db["urls"]
     now = datetime.now(timezone.utc)
-    new_data = models.ShortenedURL(url, attempt, now, now, 0)
-    new_data = {"$set": new_data}
 
-    GetDb()["urls"].update_one({"short_url": attempt}, new_data, upsert=True)
+    for _ in range(10):
+        attempt = DoShortenedAttempt()
+        model = models.ShortenedURL(url = url, short_url = attempt, created_at = now, updated_at = now, access_count = 0)
+
+        try:
+            collection.insert_one(model.model_dump())
+
+            return model
+        except DuplicateKeyError:
+            continue
+    
+    raise RuntimeError("Unable to generate unique short URL")
