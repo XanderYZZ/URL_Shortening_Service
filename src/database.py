@@ -77,14 +77,15 @@ def UpdateURL(short_url : str, url : str) -> bool:
     db = GetDb()
     collection = db["urls"]
     result = collection.find_one({"short_url": short_url,})
+    now = datetime.now(timezone.utc)
 
     if result is None:
         return False
     
     url = NormalizeURL(url)
-    collection.update_one({"short_url": short_url}, {"$set": {"url": url}}) 
+    result = collection.update_one({"short_url": short_url}, {"$set": {"url": url, "updated_at": now}}) 
 
-    return True
+    return result.matched_count == 1
 
 def GetShortenedURLModel(short_url : str) -> models.ShortenedURL | None:
     db = GetDb()
