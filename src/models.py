@@ -7,3 +7,6 @@ class ShortenedURL(BaseModel):
     created_at: Optional[AwareDatetime] = None
     updated_at: Optional[AwareDatetime] = None
     access_count: int
+
+class UpdateURLRequest(BaseModel):
+    url: str

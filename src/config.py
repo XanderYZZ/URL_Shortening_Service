@@ -5,4 +5,4 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 MONGO_URI = os.getenv("MONGO_URI")
-SHORTENED_LENGTH = 8
+SHORTENED_LENGTH = 6
